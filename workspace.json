@@ -1,32 +1,32 @@
 {
   "repositories": [
     {
-      "name": "Knowledge Hub",
+      "name": "market-data-product",
       "provider": "github",
       "owner": "tinchoaguer",
-      "repo": "knowledge-hub",
-      "include": ["docs", "README.md"]
-    },
-    {
-      "name": "market-data-be",
-      "provider": "github",
-      "owner": "tinchoaguer",
-      "repo": "market-data-be",
-      "include": ["docs"]
-    },
-    {
-      "name": "market-data-fe",
-      "provider": "github",
-      "owner": "tinchoaguer",
-      "repo": "market-data-fe",
-      "include": ["docs"]
+      "repo": "market-data-product",
+      "include":["epics", "*.md"]
     },
     {
       "name": "market-data-brand",
       "provider": "github",
       "owner": "tinchoaguer",
       "repo": "market-data-brand",
-      "include": ["docs"]
+      "include":["knowledge", "work", "README.md"]
+    },
+    {
+      "name": "market-data-be",
+      "provider": "github",
+      "owner": "tinchoaguer",
+      "repo": "market-data-be",
+      "include": ["knowledge", "work", "README.md"]
+    },
+    {
+      "name": "market-data-fe",
+      "provider": "github",
+      "owner": "tinchoaguer",
+      "repo": "market-data-fe",
+      "include": ["knowledge", "work", "README.md"]
     }
   ]
 }
