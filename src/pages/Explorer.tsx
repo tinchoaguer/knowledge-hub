@@ -1,8 +1,10 @@
 import { useEffect, useMemo, useState } from 'react'
 import DocumentPane from '../components/DocumentPane'
+import GitHubTokenForm from '../components/GitHubTokenForm'
 import TreeView from '../components/TreeView/TreeView'
 import {
   createRepositoryProvider,
+  getGitHubToken,
   loadNavigationTree,
   loadWorkspaceFromJson,
   type Document,
@@ -24,6 +26,7 @@ type DocumentState =
   | { status: 'error'; message: string }
 
 export default function Explorer() {
+  const [token, setToken] = useState<string | undefined>(() => getGitHubToken())
   const [treeState, setTreeState] = useState<TreeState>({ status: 'loading' })
   const [providers, setProviders] = useState<Map<string, RepositoryProvider>>(new Map())
   const [selectedId, setSelectedId] = useState<string | undefined>()
@@ -39,17 +42,24 @@ export default function Explorer() {
     let cancelled = false
 
     async function loadTree() {
+      setTreeState({ status: 'loading' })
+
       try {
         const repositories = workspace.getAllRepositories()
         const nextProviders = new Map<string, RepositoryProvider>()
 
         for (const repository of repositories) {
-          nextProviders.set(repository.id, createRepositoryProvider(repository))
+          nextProviders.set(
+            repository.id,
+            createRepositoryProvider(repository, { token }),
+          )
         }
 
         const nodes = await loadNavigationTree(
           repositories,
-          (repository) => nextProviders.get(repository.id) ?? createRepositoryProvider(repository),
+          (repository) =>
+            nextProviders.get(repository.id) ??
+            createRepositoryProvider(repository, { token }),
         )
 
         if (!cancelled) {
@@ -70,7 +80,7 @@ export default function Explorer() {
     return () => {
       cancelled = true
     }
-  }, [workspace])
+  }, [workspace, token])
 
   useEffect(() => {
     let cancelled = false
@@ -115,6 +125,13 @@ export default function Explorer() {
     setSelectedNode(node)
   }
 
+  const handleTokenChange = (next: string | undefined) => {
+    setSelectedId(undefined)
+    setSelectedNode(undefined)
+    setDocumentState({ status: 'idle' })
+    setToken(next)
+  }
+
   return (
     <div className="explorer">
       <aside className="explorer-sidebar">
@@ -122,6 +139,8 @@ export default function Explorer() {
           <h1>Workspace</h1>
           <p>Browse repositories and folders</p>
         </header>
+
+        <GitHubTokenForm onTokenChange={handleTokenChange} />
 
         {treeState.status === 'loading' ? <p className="explorer-status">Loading tree…</p> : null}
         {treeState.status === 'error' ? (
@@ -137,7 +156,8 @@ export default function Explorer() {
           <>
             <h2>Knowledge Hub</h2>
             <p className="explorer-placeholder">
-              Select a repository, folder, or Markdown document in the navigation tree.
+              Select a repository, folder, or document in the navigation tree. Private repositories
+              need a GitHub token saved in the sidebar.
             </p>
           </>
         ) : (
@@ -165,7 +185,7 @@ export default function Explorer() {
               <p className="explorer-placeholder">
                 {selectedNode.type === 'repository'
                   ? 'Expand this repository in the tree to browse its folders and documents.'
-                  : 'Select a Markdown file to render its contents.'}
+                  : 'Select a Markdown or JSON file to render its contents.'}
               </p>
             )}
           </>

@@ -279,7 +279,7 @@ describe('GitHubRepositoryProvider', () => {
     await expect(provider.getTree()).rejects.toThrow('404')
   })
 
-  it('sends GitHub API headers and never authenticates', async () => {
+  it('sends GitHub API headers without Authorization when no token is set', async () => {
     fetchMock.mockResolvedValueOnce(
       jsonResponse({
         sha: 'tree-sha',
@@ -303,5 +303,45 @@ describe('GitHubRepositoryProvider', () => {
       'X-GitHub-Api-Version': '2022-11-28',
     })
     expect(init.headers).not.toHaveProperty('Authorization')
+  })
+
+  it('sends Authorization when a token is provided', async () => {
+    fetchMock.mockResolvedValueOnce(
+      jsonResponse({
+        sha: 'tree-sha',
+        truncated: false,
+        tree: [],
+      }),
+    )
+
+    const provider = new GitHubRepositoryProvider({
+      owner,
+      repo,
+      ref: 'main',
+      token: 'github_pat_test',
+      fetch: fetchMock as unknown as typeof fetch,
+    })
+
+    await provider.getTree()
+
+    const [, init] = fetchMock.mock.calls[0]
+    expect(init.headers).toMatchObject({
+      Accept: 'application/vnd.github+json',
+      'X-GitHub-Api-Version': '2022-11-28',
+      Authorization: 'Bearer github_pat_test',
+    })
+  })
+
+  it('hints that a token is required when access is forbidden without one', async () => {
+    fetchMock.mockResolvedValueOnce(jsonResponse({ message: 'Forbidden' }, 403))
+
+    const provider = new GitHubRepositoryProvider({
+      owner,
+      repo,
+      ref: 'main',
+      fetch: fetchMock as unknown as typeof fetch,
+    })
+
+    await expect(provider.getTree()).rejects.toThrow('private repos require a GitHub token')
   })
 })
