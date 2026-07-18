@@ -53,4 +53,20 @@ describe('loadWorkspaceFromJson', () => {
 
     expect(() => loadWorkspaceFromJson(config)).toThrow('Unsupported repository provider')
   })
+
+  it('should load and normalize include paths', () => {
+    const workspace = loadWorkspaceFromJson({
+      repositories: [
+        {
+          name: 'Project A',
+          provider: 'github',
+          owner: 'user',
+          repo: 'project-a',
+          include: ['/docs/', 'README.md', ''],
+        },
+      ],
+    })
+
+    expect(workspace.getRepository('user/project-a')?.include).toEqual(['docs', 'README.md'])
+  })
 })

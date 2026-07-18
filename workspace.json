@@ -4,25 +4,29 @@
       "name": "Knowledge Hub",
       "provider": "github",
       "owner": "tinchoaguer",
-      "repo": "knowledge-hub"
-    },  
+      "repo": "knowledge-hub",
+      "include": ["docs", "README.md"]
+    },
     {
       "name": "market-data-be",
       "provider": "github",
       "owner": "tinchoaguer",
-      "repo": "market-data-be"
+      "repo": "market-data-be",
+      "include": ["docs"]
     },
     {
       "name": "market-data-fe",
       "provider": "github",
       "owner": "tinchoaguer",
-      "repo": "market-data-fe"
+      "repo": "market-data-fe",
+      "include": ["docs"]
     },
     {
       "name": "market-data-brand",
       "provider": "github",
       "owner": "tinchoaguer",
-      "repo": "market-data-brand"
+      "repo": "market-data-brand",
+      "include": ["docs"]
     }
   ]
 }
