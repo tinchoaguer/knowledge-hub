@@ -3,6 +3,7 @@ import {
   clearGitHubToken,
   getGitHubToken,
   hasGitHubToken,
+  maskGitHubToken,
   setGitHubToken,
 } from './githubToken'
 
@@ -38,5 +39,9 @@ describe('githubToken storage', () => {
     setGitHubToken('token')
     setGitHubToken('   ')
     expect(getGitHubToken()).toBeUndefined()
+  })
+
+  it('masks tokens for display', () => {
+    expect(maskGitHubToken('github_pat_abcdefghij')).toMatch(/••••.*hij$/)
   })
 })

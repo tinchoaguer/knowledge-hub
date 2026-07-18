@@ -35,6 +35,7 @@ export {
   clearGitHubToken,
   getGitHubToken,
   hasGitHubToken,
+  maskGitHubToken,
   setGitHubToken,
 } from './githubToken'
 export {
