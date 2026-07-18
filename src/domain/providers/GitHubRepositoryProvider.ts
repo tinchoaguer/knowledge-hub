@@ -76,7 +76,8 @@ export class GitHubRepositoryProvider implements RepositoryProvider {
     this.repo = options.repo
     this.configuredRef = options.ref
     this.cacheTtlMs = options.cacheTtlMs ?? DEFAULT_CACHE_TTL_MS
-    this.fetchFn = options.fetch ?? fetch
+    // Bind fetch: extracting `window.fetch` and calling it later throws Illegal invocation
+    this.fetchFn = options.fetch ?? ((input, init) => globalThis.fetch(input, init))
     this.apiBaseUrl = (options.apiBaseUrl ?? DEFAULT_API_BASE_URL).replace(/\/$/, '')
   }
 
