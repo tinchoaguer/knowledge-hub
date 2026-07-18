@@ -5,7 +5,7 @@
       "provider": "github",
       "owner": "tinchoaguer",
       "repo": "market-data-product",
-      "include":["epics", "*.md"]
+      "include":["epics", "knowledge"]
     },
     {
       "name": "market-data-brand",
