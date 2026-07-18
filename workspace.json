@@ -5,6 +5,24 @@
       "provider": "github",
       "owner": "tinchoaguer",
       "repo": "knowledge-hub"
+    },  
+    {
+      "name": "market-data-be",
+      "provider": "github",
+      "owner": "tinchoaguer",
+      "repo": "market-data-be"
+    },
+    {
+      "name": "market-data-fe",
+      "provider": "github",
+      "owner": "tinchoaguer",
+      "repo": "market-data-fe"
+    },
+    {
+      "name": "market-data-brand",
+      "provider": "github",
+      "owner": "tinchoaguer",
+      "repo": "market-data-brand"
     }
   ]
 }
