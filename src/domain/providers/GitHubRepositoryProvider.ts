@@ -41,6 +41,11 @@ export interface GitHubRepositoryProviderOptions {
   repo: string
   /** Branch, tag, or commit SHA. Defaults to the repository default branch. */
   ref?: string
+  /**
+   * Optional GitHub personal access token for private repositories.
+   * Prefer a fine-grained token with Contents: Read on the target repos.
+   */
+  token?: string
   /** Cache TTL in milliseconds. Defaults to 5 minutes. Use 0 for no expiration. */
   cacheTtlMs?: number
   /** Custom fetch implementation (useful for testing). */
@@ -50,14 +55,16 @@ export interface GitHubRepositoryProviderOptions {
 }
 
 /**
- * RepositoryProvider backed by the public GitHub REST API.
+ * RepositoryProvider backed by the GitHub REST API.
  *
- * Read-only and unauthenticated. Suitable for public repositories.
+ * Read-only. Works without a token for public repositories.
+ * Pass a personal access token to read private repositories.
  */
 export class GitHubRepositoryProvider implements RepositoryProvider {
   private readonly owner: string
   private readonly repo: string
   private readonly configuredRef?: string
+  private readonly token?: string
   private readonly cacheTtlMs: number
   private readonly fetchFn: typeof fetch
   private readonly apiBaseUrl: string
@@ -75,6 +82,7 @@ export class GitHubRepositoryProvider implements RepositoryProvider {
     this.owner = options.owner
     this.repo = options.repo
     this.configuredRef = options.ref
+    this.token = options.token?.trim() || undefined
     this.cacheTtlMs = options.cacheTtlMs ?? DEFAULT_CACHE_TTL_MS
     // Bind fetch: extracting `window.fetch` and calling it later throws Illegal invocation
     this.fetchFn = options.fetch ?? ((input, init) => globalThis.fetch(input, init))
@@ -162,7 +170,9 @@ export class GitHubRepositoryProvider implements RepositoryProvider {
     }
 
     if (file.download_url) {
-      const response = await this.fetchFn(file.download_url)
+      const response = await this.fetchFn(file.download_url, {
+        headers: this.requestHeaders(),
+      })
       if (!response.ok) {
         throw new Error(
           `Failed to download content for ${this.owner}/${this.repo}/${file.path}: ${response.status} ${response.statusText}`,
@@ -190,17 +200,33 @@ export class GitHubRepositoryProvider implements RepositoryProvider {
     return value
   }
 
+  private requestHeaders(): Record<string, string> {
+    const headers: Record<string, string> = {
+      Accept: 'application/vnd.github+json',
+      'X-GitHub-Api-Version': '2022-11-28',
+    }
+
+    if (this.token) {
+      headers.Authorization = `Bearer ${this.token}`
+    }
+
+    return headers
+  }
+
   private async requestJson<T>(path: string): Promise<T> {
     const response = await this.fetchFn(`${this.apiBaseUrl}${path}`, {
-      headers: {
-        Accept: 'application/vnd.github+json',
-        'X-GitHub-Api-Version': '2022-11-28',
-      },
+      headers: this.requestHeaders(),
     })
 
     if (!response.ok) {
+      const hint =
+        (response.status === 401 || response.status === 403) && !this.token
+          ? ' (private repos require a GitHub token)'
+          : response.status === 401 || response.status === 403
+            ? ' (check that the token can access this repository)'
+            : ''
       throw new Error(
-        `GitHub API request failed for ${path}: ${response.status} ${response.statusText}`,
+        `GitHub API request failed for ${path}: ${response.status} ${response.statusText}${hint}`,
       )
     }
 

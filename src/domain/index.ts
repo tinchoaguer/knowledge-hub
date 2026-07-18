@@ -27,7 +27,16 @@ export {
   buildTree,
   type GitHubRepositoryProviderOptions,
 } from './providers/GitHubRepositoryProvider'
-export { createRepositoryProvider } from './createRepositoryProvider'
+export {
+  createRepositoryProvider,
+  type CreateRepositoryProviderOptions,
+} from './createRepositoryProvider'
+export {
+  clearGitHubToken,
+  getGitHubToken,
+  hasGitHubToken,
+  setGitHubToken,
+} from './githubToken'
 export {
   loadNavigationTree,
   type NavigationNode,
