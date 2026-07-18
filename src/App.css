@@ -99,6 +99,21 @@
   opacity: 0.75;
 }
 
+.github-token-saved {
+  margin-bottom: 0.5rem;
+}
+
+.github-token-mask {
+  margin: 0 0 0.5rem;
+  font-size: 0.75rem;
+  opacity: 0.85;
+}
+
+.github-token-mask code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.8em;
+}
+
 .github-token-label {
   display: block;
   font-size: 0.75rem;

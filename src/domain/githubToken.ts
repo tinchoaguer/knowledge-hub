@@ -43,3 +43,15 @@ export function clearGitHubToken(): void {
 export function hasGitHubToken(): boolean {
   return Boolean(getGitHubToken())
 }
+
+/**
+ * Returns a masked preview of a token for the UI (never the full secret).
+ */
+export function maskGitHubToken(token: string): string {
+  const value = token.trim()
+  if (value.length <= 8) {
+    return '••••••••'
+  }
+
+  return `${'•'.repeat(Math.min(12, value.length - 4))}${value.slice(-4)}`
+}

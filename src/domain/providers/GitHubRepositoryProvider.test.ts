@@ -342,6 +342,21 @@ describe('GitHubRepositoryProvider', () => {
       fetch: fetchMock as unknown as typeof fetch,
     })
 
-    await expect(provider.getTree()).rejects.toThrow('private repos require a GitHub token')
+    await expect(provider.getTree()).rejects.toThrow('Private repos require a GitHub token')
+  })
+
+  it('explains 404s for private repos when a token is already set', async () => {
+    fetchMock.mockResolvedValueOnce(jsonResponse({ message: 'Not Found' }, 404))
+
+    const provider = new GitHubRepositoryProvider({
+      owner,
+      repo,
+      ref: 'main',
+      token: 'github_pat_test',
+      fetch: fetchMock as unknown as typeof fetch,
+    })
+
+    await expect(provider.getTree()).rejects.toThrow('not granted to this fine-grained token')
   })
 })
+

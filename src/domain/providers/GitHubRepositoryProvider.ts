@@ -219,19 +219,52 @@ export class GitHubRepositoryProvider implements RepositoryProvider {
     })
 
     if (!response.ok) {
-      const hint =
-        (response.status === 401 || response.status === 403) && !this.token
-          ? ' (private repos require a GitHub token)'
-          : response.status === 401 || response.status === 403
-            ? ' (check that the token can access this repository)'
-            : ''
+      const apiMessage = await readGitHubErrorMessage(response)
+      const hint = accessHint(response.status, Boolean(this.token))
+      const details = [apiMessage, hint].filter(Boolean).join(' ')
       throw new Error(
-        `GitHub API request failed for ${path}: ${response.status} ${response.statusText}${hint}`,
+        `GitHub API request failed for ${path}: ${response.status} ${response.statusText}${
+          details ? ` — ${details}` : ''
+        }`,
       )
     }
 
     return (await response.json()) as T
   }
+}
+
+async function readGitHubErrorMessage(response: Response): Promise<string | undefined> {
+  try {
+    const body = (await response.clone().json()) as { message?: string }
+    return body.message?.trim() || undefined
+  } catch {
+    return undefined
+  }
+}
+
+/**
+ * GitHub often returns 404 for private repos the caller cannot see.
+ */
+function accessHint(status: number, hasToken: boolean): string | undefined {
+  if (status === 401) {
+    return hasToken
+      ? 'Token rejected. Edit/replace the token in the sidebar.'
+      : 'Private repos require a GitHub token. Save one in the sidebar.'
+  }
+
+  if (status === 403) {
+    return hasToken
+      ? 'Token lacks permission. Grant Contents: Read for this repository.'
+      : 'Private repos require a GitHub token. Save one in the sidebar.'
+  }
+
+  if (status === 404) {
+    return hasToken
+      ? 'Repo missing, renamed, or not granted to this fine-grained token. Edit the token and include this repository with Contents: Read.'
+      : 'If this repository is private, save a GitHub token that can access it.'
+  }
+
+  return undefined
 }
 
 function normalizePath(path: string): string {
