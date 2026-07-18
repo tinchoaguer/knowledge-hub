@@ -1,11 +1,22 @@
 /**
  * Workspace Domain
  *
- * This module contains the core domain logic for managing workspaces.
- * A workspace represents a collection of repositories.
+ * This module contains the core domain logic for managing workspaces
+ * and loading repository contents through providers.
  *
- * For now, repositories are loaded from workspace.json configuration.
- * GitHub integration will be added in a future iteration.
+ * A workspace represents a collection of repositories.
+ * Repository providers load tree and document data from external sources.
  */
 
 export { Workspace, loadWorkspaceFromJson, type Repository } from './Workspace'
+export type {
+  Document,
+  RepositoryProvider,
+  TreeEntry,
+  TreeEntryType,
+} from './RepositoryProvider'
+export {
+  GitHubRepositoryProvider,
+  buildTree,
+  type GitHubRepositoryProviderOptions,
+} from './providers/GitHubRepositoryProvider'
