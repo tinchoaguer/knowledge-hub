@@ -1,17 +1,47 @@
 /**
- * Represents a repository in the workspace.
+ * Supported repository provider kinds.
+ */
+export type RepositoryProviderKind = 'github'
+
+/**
+ * A repository definition in the workspace.
+ *
+ * Matches entries in workspace.json and is provider-agnostic at the UI layer.
  */
 export interface Repository {
   /** Unique identifier for the repository */
   id: string
-  /** Repository name */
+  /** Display name */
   name: string
-  /** Repository URL */
-  url: string
-  /** Repository description */
+  /** Provider used to load repository contents */
+  provider: RepositoryProviderKind
+  /** Repository owner (user or organization) */
+  owner: string
+  /** Repository name on the provider */
+  repo: string
+  /** Optional branch, tag, or commit SHA */
+  ref?: string
+  /** Optional description */
   description?: string
-  /** Programming language or primary language */
-  language?: string
+}
+
+/**
+ * Raw repository entry as defined in workspace.json.
+ */
+export interface WorkspaceRepositoryConfig {
+  name: string
+  provider: RepositoryProviderKind
+  owner: string
+  repo: string
+  ref?: string
+  description?: string
+}
+
+/**
+ * Workspace configuration file shape.
+ */
+export interface WorkspaceConfig {
+  repositories: WorkspaceRepositoryConfig[]
 }
 
 /**
@@ -91,6 +121,23 @@ export class Workspace {
  * @param config - Workspace configuration with repositories array
  * @returns Workspace instance
  */
-export function loadWorkspaceFromJson(config: { repositories: Repository[] }): Workspace {
-  return new Workspace(config.repositories)
+export function loadWorkspaceFromJson(config: WorkspaceConfig): Workspace {
+  const repositories = config.repositories.map(toRepository)
+  return new Workspace(repositories)
+}
+
+function toRepository(config: WorkspaceRepositoryConfig): Repository {
+  if (config.provider !== 'github') {
+    throw new Error(`Unsupported repository provider: ${String(config.provider)}`)
+  }
+
+  return {
+    id: `${config.owner}/${config.repo}`,
+    name: config.name,
+    provider: config.provider,
+    owner: config.owner,
+    repo: config.repo,
+    ref: config.ref,
+    description: config.description,
+  }
 }

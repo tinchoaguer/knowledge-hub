@@ -5,18 +5,20 @@ describe('Workspace', () => {
   let workspace: Workspace
   const mockRepositories: Repository[] = [
     {
-      id: 'repo-1',
+      id: 'user/project-a',
       name: 'Project A',
-      url: 'https://github.com/user/project-a',
+      provider: 'github',
+      owner: 'user',
+      repo: 'project-a',
       description: 'A sample project',
-      language: 'TypeScript',
     },
     {
-      id: 'repo-2',
+      id: 'user/project-b',
       name: 'Project B',
-      url: 'https://github.com/user/project-b',
+      provider: 'github',
+      owner: 'user',
+      repo: 'project-b',
       description: 'Another sample project',
-      language: 'Python',
     },
   ]
 
@@ -32,7 +34,7 @@ describe('Workspace', () => {
     it('should initialize with repositories from constructor', () => {
       const ws = new Workspace(mockRepositories)
       expect(ws.getRepositoryCount()).toBe(2)
-      expect(ws.getRepository('repo-1')).toEqual(mockRepositories[0])
+      expect(ws.getRepository('user/project-a')).toEqual(mockRepositories[0])
     })
   })
 
@@ -40,7 +42,7 @@ describe('Workspace', () => {
     it('should add a repository to the workspace', () => {
       workspace.addRepository(mockRepositories[0])
       expect(workspace.getRepositoryCount()).toBe(1)
-      expect(workspace.getRepository('repo-1')).toEqual(mockRepositories[0])
+      expect(workspace.getRepository('user/project-a')).toEqual(mockRepositories[0])
     })
 
     it('should add multiple repositories', () => {
@@ -52,7 +54,7 @@ describe('Workspace', () => {
     it('should throw error when adding duplicate repository ID', () => {
       workspace.addRepository(mockRepositories[0])
       expect(() => workspace.addRepository(mockRepositories[0])).toThrow(
-        'Repository with id repo-1 already exists',
+        'Repository with id user/project-a already exists',
       )
     })
   })
@@ -64,10 +66,10 @@ describe('Workspace', () => {
     })
 
     it('should remove a repository from the workspace', () => {
-      const removed = workspace.removeRepository('repo-1')
+      const removed = workspace.removeRepository('user/project-a')
       expect(removed).toBe(true)
       expect(workspace.getRepositoryCount()).toBe(1)
-      expect(workspace.getRepository('repo-1')).toBeUndefined()
+      expect(workspace.getRepository('user/project-a')).toBeUndefined()
     })
 
     it('should return false when removing non-existent repository', () => {
@@ -83,7 +85,7 @@ describe('Workspace', () => {
     })
 
     it('should return a repository by ID', () => {
-      const repo = workspace.getRepository('repo-1')
+      const repo = workspace.getRepository('user/project-a')
       expect(repo).toEqual(mockRepositories[0])
     })
 
@@ -114,7 +116,7 @@ describe('Workspace', () => {
     })
 
     it('should return true for existing repository', () => {
-      expect(workspace.hasRepository('repo-1')).toBe(true)
+      expect(workspace.hasRepository('user/project-a')).toBe(true)
     })
 
     it('should return false for non-existent repository', () => {
@@ -129,7 +131,7 @@ describe('Workspace', () => {
       expect(workspace.getRepositoryCount()).toBe(1)
       workspace.addRepository(mockRepositories[1])
       expect(workspace.getRepositoryCount()).toBe(2)
-      workspace.removeRepository('repo-1')
+      workspace.removeRepository('user/project-a')
       expect(workspace.getRepositoryCount()).toBe(1)
     })
   })

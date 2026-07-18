@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom'
 import './App.css'
-import Home from './pages/Home'
+import Explorer from './pages/Explorer'
 
 function App() {
   const [isDark, setIsDark] = useState(false)
@@ -19,15 +19,15 @@ function App() {
             <Link to="/" className="logo">
               Knowledge Hub
             </Link>
-            <button onClick={toggleTheme} className="theme-toggle">
-              {isDark ? '☀️' : '🌙'}
+            <button onClick={toggleTheme} className="theme-toggle" aria-label="Toggle theme">
+              {isDark ? 'Light' : 'Dark'}
             </button>
           </div>
         </nav>
 
-        <main className="main-content">
+        <main className="main-content main-content--explorer">
           <Routes>
-            <Route path="/" element={<Home />} />
+            <Route path="/" element={<Explorer />} />
           </Routes>
         </main>
       </div>
