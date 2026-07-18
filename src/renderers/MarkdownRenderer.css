@@ -1,0 +1,129 @@
+.markdown-renderer {
+  text-align: left;
+  line-height: 1.65;
+  max-width: 52rem;
+}
+
+.markdown-renderer > :first-child {
+  margin-top: 0;
+}
+
+.markdown-renderer > :last-child {
+  margin-bottom: 0;
+}
+
+.markdown-renderer h1,
+.markdown-renderer h2,
+.markdown-renderer h3,
+.markdown-renderer h4,
+.markdown-renderer h5,
+.markdown-renderer h6 {
+  margin: 1.4em 0 0.6em;
+  line-height: 1.25;
+  font-weight: 650;
+}
+
+.markdown-renderer h1 {
+  font-size: 1.85rem;
+  border-bottom: 1px solid rgba(127, 127, 127, 0.25);
+  padding-bottom: 0.35rem;
+}
+
+.markdown-renderer h2 {
+  font-size: 1.45rem;
+  border-bottom: 1px solid rgba(127, 127, 127, 0.18);
+  padding-bottom: 0.25rem;
+}
+
+.markdown-renderer h3 {
+  font-size: 1.2rem;
+}
+
+.markdown-renderer p,
+.markdown-renderer ul,
+.markdown-renderer ol,
+.markdown-renderer blockquote,
+.markdown-renderer pre,
+.markdown-renderer table {
+  margin: 0 0 1rem;
+}
+
+.markdown-renderer ul,
+.markdown-renderer ol {
+  padding-left: 1.5rem;
+}
+
+.markdown-renderer li + li {
+  margin-top: 0.25rem;
+}
+
+.markdown-renderer a {
+  color: var(--primary-color);
+}
+
+.markdown-renderer a:hover {
+  color: var(--primary-hover);
+}
+
+.markdown-renderer code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.9em;
+  background: rgba(127, 127, 127, 0.15);
+  padding: 0.15em 0.35em;
+  border-radius: 4px;
+}
+
+.markdown-renderer pre {
+  overflow: auto;
+  padding: 0.9rem 1rem;
+  border-radius: 6px;
+  background: rgba(127, 127, 127, 0.12);
+  border: 1px solid rgba(127, 127, 127, 0.2);
+}
+
+.markdown-renderer pre code {
+  background: transparent;
+  padding: 0;
+  border-radius: 0;
+  font-size: 0.875rem;
+}
+
+.markdown-renderer blockquote {
+  margin-left: 0;
+  padding: 0.25rem 0 0.25rem 1rem;
+  border-left: 3px solid rgba(100, 108, 255, 0.55);
+  opacity: 0.9;
+}
+
+.markdown-renderer table {
+  border-collapse: collapse;
+  width: 100%;
+  display: block;
+  overflow-x: auto;
+}
+
+.markdown-renderer th,
+.markdown-renderer td {
+  border: 1px solid rgba(127, 127, 127, 0.3);
+  padding: 0.45rem 0.7rem;
+}
+
+.markdown-renderer th {
+  background: rgba(127, 127, 127, 0.12);
+  font-weight: 600;
+}
+
+.markdown-renderer hr {
+  border: none;
+  border-top: 1px solid rgba(127, 127, 127, 0.3);
+  margin: 1.5rem 0;
+}
+
+.markdown-renderer img {
+  max-width: 100%;
+  height: auto;
+}
+
+.markdown-renderer input[type='checkbox'] {
+  margin-right: 0.4rem;
+}

@@ -1,41 +1,64 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
+import DocumentPane from '../components/DocumentPane'
 import TreeView from '../components/TreeView/TreeView'
 import {
   createRepositoryProvider,
   loadNavigationTree,
   loadWorkspaceFromJson,
+  type Document,
   type NavigationNode,
+  type RepositoryProvider,
   type WorkspaceConfig,
 } from '../domain'
 import workspaceConfig from '../../workspace.json'
 
-type LoadState =
+type TreeState =
   | { status: 'loading' }
   | { status: 'ready'; nodes: NavigationNode[] }
   | { status: 'error'; message: string }
 
+type DocumentState =
+  | { status: 'idle' }
+  | { status: 'loading' }
+  | { status: 'ready'; document: Document }
+  | { status: 'error'; message: string }
+
 export default function Explorer() {
-  const [state, setState] = useState<LoadState>({ status: 'loading' })
+  const [treeState, setTreeState] = useState<TreeState>({ status: 'loading' })
+  const [providers, setProviders] = useState<Map<string, RepositoryProvider>>(new Map())
   const [selectedId, setSelectedId] = useState<string | undefined>()
   const [selectedNode, setSelectedNode] = useState<NavigationNode | undefined>()
+  const [documentState, setDocumentState] = useState<DocumentState>({ status: 'idle' })
+
+  const workspace = useMemo(
+    () => loadWorkspaceFromJson(workspaceConfig as WorkspaceConfig),
+    [],
+  )
 
   useEffect(() => {
     let cancelled = false
 
-    async function load() {
+    async function loadTree() {
       try {
-        const workspace = loadWorkspaceFromJson(workspaceConfig as WorkspaceConfig)
+        const repositories = workspace.getAllRepositories()
+        const nextProviders = new Map<string, RepositoryProvider>()
+
+        for (const repository of repositories) {
+          nextProviders.set(repository.id, createRepositoryProvider(repository))
+        }
+
         const nodes = await loadNavigationTree(
-          workspace.getAllRepositories(),
-          createRepositoryProvider,
+          repositories,
+          (repository) => nextProviders.get(repository.id) ?? createRepositoryProvider(repository),
         )
 
         if (!cancelled) {
-          setState({ status: 'ready', nodes })
+          setProviders(nextProviders)
+          setTreeState({ status: 'ready', nodes })
         }
       } catch (error) {
         if (!cancelled) {
-          setState({
+          setTreeState({
             status: 'error',
             message: error instanceof Error ? error.message : 'Failed to load workspace',
           })
@@ -43,11 +66,49 @@ export default function Explorer() {
       }
     }
 
-    void load()
+    void loadTree()
     return () => {
       cancelled = true
     }
-  }, [])
+  }, [workspace])
+
+  useEffect(() => {
+    let cancelled = false
+
+    async function loadDocument() {
+      if (!selectedNode || selectedNode.type !== 'file' || !selectedNode.path) {
+        setDocumentState({ status: 'idle' })
+        return
+      }
+
+      const provider = providers.get(selectedNode.repositoryId)
+      if (!provider) {
+        setDocumentState({ status: 'error', message: 'Repository provider is unavailable' })
+        return
+      }
+
+      setDocumentState({ status: 'loading' })
+
+      try {
+        const document = await provider.getDocument(selectedNode.path)
+        if (!cancelled) {
+          setDocumentState({ status: 'ready', document })
+        }
+      } catch (error) {
+        if (!cancelled) {
+          setDocumentState({
+            status: 'error',
+            message: error instanceof Error ? error.message : 'Failed to load document',
+          })
+        }
+      }
+    }
+
+    void loadDocument()
+    return () => {
+      cancelled = true
+    }
+  }, [selectedNode, providers])
 
   const handleSelect = (node: NavigationNode) => {
     setSelectedId(node.id)
@@ -62,17 +123,24 @@ export default function Explorer() {
           <p>Browse repositories and folders</p>
         </header>
 
-        {state.status === 'loading' ? <p className="explorer-status">Loading tree…</p> : null}
-        {state.status === 'error' ? (
-          <p className="explorer-status explorer-status--error">{state.message}</p>
+        {treeState.status === 'loading' ? <p className="explorer-status">Loading tree…</p> : null}
+        {treeState.status === 'error' ? (
+          <p className="explorer-status explorer-status--error">{treeState.message}</p>
         ) : null}
-        {state.status === 'ready' ? (
-          <TreeView nodes={state.nodes} selectedId={selectedId} onSelect={handleSelect} />
+        {treeState.status === 'ready' ? (
+          <TreeView nodes={treeState.nodes} selectedId={selectedId} onSelect={handleSelect} />
         ) : null}
       </aside>
 
       <section className="explorer-main">
-        {selectedNode ? (
+        {!selectedNode ? (
+          <>
+            <h2>Knowledge Hub</h2>
+            <p className="explorer-placeholder">
+              Select a repository, folder, or Markdown document in the navigation tree.
+            </p>
+          </>
+        ) : (
           <>
             <h2>{selectedNode.name}</h2>
             <p className="explorer-selection-meta">
@@ -80,18 +148,26 @@ export default function Explorer() {
               {selectedNode.path ? ` · ${selectedNode.path}` : ''}
               {` · ${selectedNode.repositoryId}`}
             </p>
-            <p className="explorer-placeholder">
-              Document rendering is not available yet. Use the tree to explore repositories and
-              folders.
-            </p>
-          </>
-        ) : (
-          <>
-            <h2>Knowledge Hub</h2>
-            <p className="explorer-placeholder">
-              Select a repository or folder in the navigation tree to inspect its place in the
-              workspace.
-            </p>
+
+            {selectedNode.type === 'file' ? (
+              <>
+                {documentState.status === 'loading' ? (
+                  <p className="explorer-status">Loading document…</p>
+                ) : null}
+                {documentState.status === 'error' ? (
+                  <p className="explorer-status explorer-status--error">{documentState.message}</p>
+                ) : null}
+                {documentState.status === 'ready' ? (
+                  <DocumentPane document={documentState.document} />
+                ) : null}
+              </>
+            ) : (
+              <p className="explorer-placeholder">
+                {selectedNode.type === 'repository'
+                  ? 'Expand this repository in the tree to browse its folders and documents.'
+                  : 'Select a Markdown file to render its contents.'}
+              </p>
+            )}
           </>
         )}
       </section>
