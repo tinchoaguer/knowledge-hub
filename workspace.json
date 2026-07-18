@@ -1,16 +1,10 @@
 {
-    "repositories":[
-        {
-            "name":"Product",
-            "provider":"github",
-            "owner":"my-org",
-            "repo":"market-data-product"
-        },
-        {
-            "name":"Backend",
-            "provider":"github",
-            "owner":"my-org",
-            "repo":"market-data-backend"
-        }
-    ]
+  "repositories": [
+    {
+      "name": "Knowledge Hub",
+      "provider": "github",
+      "owner": "tinchoaguer",
+      "repo": "knowledge-hub"
+    }
+  ]
 }

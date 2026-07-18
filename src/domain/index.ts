@@ -8,7 +8,14 @@
  * Repository providers load tree and document data from external sources.
  */
 
-export { Workspace, loadWorkspaceFromJson, type Repository } from './Workspace'
+export {
+  Workspace,
+  loadWorkspaceFromJson,
+  type Repository,
+  type RepositoryProviderKind,
+  type WorkspaceConfig,
+  type WorkspaceRepositoryConfig,
+} from './Workspace'
 export type {
   Document,
   RepositoryProvider,
@@ -20,3 +27,10 @@ export {
   buildTree,
   type GitHubRepositoryProviderOptions,
 } from './providers/GitHubRepositoryProvider'
+export { createRepositoryProvider } from './createRepositoryProvider'
+export {
+  loadNavigationTree,
+  type NavigationNode,
+  type NavigationNodeType,
+  type ProviderFactory,
+} from './NavigationTree'
