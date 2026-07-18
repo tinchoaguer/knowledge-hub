@@ -255,12 +255,14 @@ The application is automatically deployed to GitHub Pages on every push to the `
 ### Deployment Workflow
 
 The `.github/workflows/deploy.yml` workflow:
-1. Triggers on push to main
+1. Triggers on push to `main` (or manual `workflow_dispatch`)
 2. Installs dependencies
-3. Runs linting checks
-4. Builds the application
-5. Uploads build artifacts
-6. Deploys to GitHub Pages
+3. Runs unit tests
+4. Builds the Vite production bundle into `dist/`
+5. Uploads the Pages artifact
+6. Deploys to GitHub Pages via GitHub Actions
+
+> GitHub Pages must use **Source: GitHub Actions** (not “Deploy from a branch”), otherwise the raw source tree is published and the app will not render.
 
 ## 🔮 Roadmap
 
