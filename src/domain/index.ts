@@ -39,6 +39,7 @@ export {
   setGitHubToken,
 } from './githubToken'
 export {
+  filterTreeEntries,
   loadNavigationTree,
   type NavigationNode,
   type NavigationNodeType,

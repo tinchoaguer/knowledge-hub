@@ -36,6 +36,8 @@ export type ProviderFactory = (repository: Repository) => RepositoryProvider
  * Each repository becomes a root node. Folder/file children come from
  * the repository provider. Failures are captured on the repository node
  * so the rest of the workspace can still render.
+ *
+ * When a repository defines ``include``, only matching paths are shown.
  */
 export async function loadNavigationTree(
   repositories: Repository[],
@@ -45,7 +47,7 @@ export async function loadNavigationTree(
     repositories.map(async (repository) => {
       try {
         const provider = createProvider(repository)
-        const entries = await provider.getTree()
+        const entries = filterTreeEntries(await provider.getTree(), repository.include)
         return {
           id: `repo:${repository.id}`,
           name: repository.name,
@@ -65,6 +67,53 @@ export async function loadNavigationTree(
       }
     }),
   )
+}
+
+/**
+ * Filters a provider tree to the configured include paths.
+ *
+ * - ``undefined`` include → keep the full tree
+ * - empty include → show nothing
+ * - otherwise keep matching files/folders and ancestor directories needed to reach them
+ */
+export function filterTreeEntries(entries: TreeEntry[], include?: string[]): TreeEntry[] {
+  if (include === undefined) {
+    return entries
+  }
+
+  if (include.length === 0) {
+    return []
+  }
+
+  return filterEntries(entries, include)
+}
+
+function filterEntries(entries: TreeEntry[], include: string[]): TreeEntry[] {
+  const result: TreeEntry[] = []
+
+  for (const entry of entries) {
+    if (isIncludedPath(entry.path, include)) {
+      result.push(entry)
+      continue
+    }
+
+    if (entry.type === 'directory' && isAncestorPath(entry.path, include)) {
+      const children = filterEntries(entry.children ?? [], include)
+      if (children.length > 0) {
+        result.push({ ...entry, children })
+      }
+    }
+  }
+
+  return result
+}
+
+function isIncludedPath(path: string, include: string[]): boolean {
+  return include.some((prefix) => path === prefix || path.startsWith(`${prefix}/`))
+}
+
+function isAncestorPath(path: string, include: string[]): boolean {
+  return include.some((prefix) => prefix.startsWith(`${path}/`))
 }
 
 function mapEntries(repositoryId: string, entries: TreeEntry[]): NavigationNode[] {

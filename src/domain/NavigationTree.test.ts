@@ -1,7 +1,32 @@
 import { describe, it, expect } from 'vitest'
-import { loadNavigationTree } from './NavigationTree'
+import { filterTreeEntries, loadNavigationTree } from './NavigationTree'
 import type { Repository } from './Workspace'
 import type { Document, RepositoryProvider, TreeEntry } from './RepositoryProvider'
+
+const sampleTree: TreeEntry[] = [
+  {
+    name: 'docs',
+    path: 'docs',
+    type: 'directory',
+    children: [
+      { name: 'readme.md', path: 'docs/readme.md', type: 'file' },
+      {
+        name: 'guides',
+        path: 'docs/guides',
+        type: 'directory',
+        children: [{ name: 'start.md', path: 'docs/guides/start.md', type: 'file' }],
+      },
+    ],
+  },
+  {
+    name: 'src',
+    path: 'src',
+    type: 'directory',
+    children: [{ name: 'index.ts', path: 'src/index.ts', type: 'file' }],
+  },
+  { name: 'package.json', path: 'package.json', type: 'file' },
+  { name: 'README.md', path: 'README.md', type: 'file' },
+]
 
 class FakeRepositoryProvider implements RepositoryProvider {
   constructor(
@@ -128,5 +153,64 @@ describe('loadNavigationTree', () => {
     })
     expect(tree[1].children).toHaveLength(1)
     expect(tree[1].error).toBeUndefined()
+  })
+
+  it('applies repository include paths when building the navigation tree', async () => {
+    const repos: Repository[] = [
+      {
+        id: 'org/product',
+        name: 'Product',
+        provider: 'github',
+        owner: 'org',
+        repo: 'product',
+        include: ['docs', 'README.md'],
+      },
+    ]
+
+    const tree = await loadNavigationTree(repos, () => new FakeRepositoryProvider(sampleTree))
+
+    expect(tree[0].children?.map((child) => child.path)).toEqual(['docs', 'README.md'])
+    expect(tree[0].children?.[0].children?.map((child) => child.path)).toEqual([
+      'docs/readme.md',
+      'docs/guides',
+    ])
+  })
+})
+
+describe('filterTreeEntries', () => {
+  it('returns the full tree when include is omitted', () => {
+    expect(filterTreeEntries(sampleTree)).toEqual(sampleTree)
+  })
+
+  it('returns an empty tree when include is empty', () => {
+    expect(filterTreeEntries(sampleTree, [])).toEqual([])
+  })
+
+  it('keeps included folders and files', () => {
+    const filtered = filterTreeEntries(sampleTree, ['docs', 'README.md'])
+    expect(filtered.map((entry) => entry.path)).toEqual(['docs', 'README.md'])
+    expect(filtered[0].children?.map((entry) => entry.path)).toEqual([
+      'docs/readme.md',
+      'docs/guides',
+    ])
+  })
+
+  it('keeps ancestor folders for nested include paths', () => {
+    const filtered = filterTreeEntries(sampleTree, ['docs/guides'])
+    expect(filtered).toEqual([
+      {
+        name: 'docs',
+        path: 'docs',
+        type: 'directory',
+        children: [
+          {
+            name: 'guides',
+            path: 'docs/guides',
+            type: 'directory',
+            children: [{ name: 'start.md', path: 'docs/guides/start.md', type: 'file' }],
+          },
+        ],
+      },
+    ])
   })
 })

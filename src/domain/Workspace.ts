@@ -23,6 +23,12 @@ export interface Repository {
   ref?: string
   /** Optional description */
   description?: string
+  /**
+   * Optional paths to show in the explorer (folders or files).
+   * When omitted, the full repository tree is shown.
+   * When set (including empty), only matching paths are shown.
+   */
+  include?: string[]
 }
 
 /**
@@ -35,6 +41,8 @@ export interface WorkspaceRepositoryConfig {
   repo: string
   ref?: string
   description?: string
+  /** Optional folder/file paths to show in the explorer */
+  include?: string[]
 }
 
 /**
@@ -139,5 +147,16 @@ function toRepository(config: WorkspaceRepositoryConfig): Repository {
     repo: config.repo,
     ref: config.ref,
     description: config.description,
+    include: normalizeIncludePaths(config.include),
   }
+}
+
+function normalizeIncludePaths(include?: string[]): string[] | undefined {
+  if (include === undefined) {
+    return undefined
+  }
+
+  return include
+    .map((path) => path.replace(/\\/g, '/').replace(/^\/+/, '').replace(/\/+$/, '').trim())
+    .filter((path) => path.length > 0)
 }
