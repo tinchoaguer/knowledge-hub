@@ -1,0 +1,16 @@
+{
+    "repositories":[
+        {
+            "name":"Product",
+            "provider":"github",
+            "owner":"my-org",
+            "repo":"market-data-product"
+        },
+        {
+            "name":"Backend",
+            "provider":"github",
+            "owner":"my-org",
+            "repo":"market-data-backend"
+        }
+    ]
+}
