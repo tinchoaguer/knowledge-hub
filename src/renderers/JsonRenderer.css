@@ -1,0 +1,127 @@
+.json-renderer {
+  text-align: left;
+  max-width: 100%;
+}
+
+.json-error {
+  margin: 0 0 0.75rem;
+  color: #e35d6a;
+  font-size: 0.95rem;
+}
+
+.json-tree-node {
+  margin: 0;
+}
+
+.json-tree-toggle,
+.json-tree-row {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 0.15rem;
+  width: 100%;
+  border: none;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  padding: 0.2rem 0.35rem;
+  border-radius: 4px;
+}
+
+.json-tree-toggle {
+  cursor: pointer;
+}
+
+.json-tree-toggle:hover {
+  background: rgba(100, 108, 255, 0.1);
+}
+
+.json-tree-twistie {
+  width: 0.9rem;
+  flex-shrink: 0;
+  opacity: 0.7;
+  font-size: 0.75rem;
+}
+
+.json-tree-key {
+  color: var(--primary-color);
+  font-weight: 600;
+}
+
+.json-tree-sep {
+  opacity: 0.55;
+}
+
+.json-tree-summary {
+  opacity: 0.7;
+  font-size: 0.9em;
+}
+
+.json-tree-value--string {
+  color: #3d9a6a;
+}
+
+.json-tree-value--number {
+  color: #c47b2c;
+}
+
+.json-tree-value--boolean {
+  color: #7a5af8;
+}
+
+.json-tree-value--null {
+  opacity: 0.55;
+  font-style: italic;
+}
+
+.json-table-wrap {
+  overflow-x: auto;
+  border: 1px solid rgba(127, 127, 127, 0.25);
+  border-radius: 6px;
+}
+
+.json-table {
+  border-collapse: collapse;
+  width: 100%;
+  min-width: max-content;
+  font-size: 0.9rem;
+}
+
+.json-table th,
+.json-table td {
+  border-bottom: 1px solid rgba(127, 127, 127, 0.2);
+  padding: 0.55rem 0.75rem;
+  text-align: left;
+  vertical-align: top;
+  white-space: pre-wrap;
+  max-width: 28rem;
+}
+
+.json-table th {
+  background: rgba(127, 127, 127, 0.12);
+  font-weight: 650;
+  position: sticky;
+  top: 0;
+}
+
+.json-table tr:last-child td {
+  border-bottom: none;
+}
+
+.json-table tbody tr:hover {
+  background: rgba(100, 108, 255, 0.08);
+}
+
+.json-formatted {
+  margin: 0;
+  overflow: auto;
+  padding: 0.9rem 1rem;
+  border-radius: 6px;
+  background: rgba(127, 127, 127, 0.12);
+  border: 1px solid rgba(127, 127, 127, 0.2);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  white-space: pre;
+}
